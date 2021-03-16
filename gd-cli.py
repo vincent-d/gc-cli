@@ -113,8 +113,19 @@ class Mondo:
         if (current == None):
             print("Error while getting current")
         else:
-            if ('mediaRoles' in current[self.INDEX_VALUE]):
-                print("Currently playing: {}".format(current[self.INDEX_VALUE]['mediaRoles']['title']))
+            if ('trackRoles' in current[self.INDEX_VALUE] and 'title' in current[self.INDEX_VALUE]['trackRoles']):
+                track = current[self.INDEX_VALUE]['trackRoles']
+                src = ""
+                if ('mediaData' in track and 'album' in track['mediaData']['metaData'] and 'artist' in track['mediaData']['metaData']):
+                    if ('serviceNameOverride' in track['mediaData']['metaData']):
+                        src = ", source: {}".format(track['mediaData']['metaData']['serviceNameOverride'])
+                    print("Currently playing: '{}' (on '{}' by '{}'{})".format(track['title'],
+                        track['mediaData']['metaData']['album'], track['mediaData']['metaData']['artist'],
+                        src))
+                else:
+                    if ('mediaData' in track and 'serviceNameOverride' in track['mediaData']['metaData']):
+                        src = " (source: {})".format(track['mediaData']['metaData']['serviceNameOverride'])
+                    print("Currently playing: {}{}".format(track['title'], src))
             else:
                 print("Nothing is playing")
 
@@ -201,10 +212,9 @@ def main(argv):
         mondo.print_current()
 
     if (args.volume != None):
-        if (args.volume == -1):
-            mondo.print_volume()
-        else:
+        if (args.volume >= 0):
             mondo.set_volume(args.volume)
+        mondo.print_volume()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
