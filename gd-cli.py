@@ -73,8 +73,11 @@ class Mondo:
             'encryptedValue,rating,fillParent,autoCompletePath,busyText,sortKey,renderAsButton,doNotTrack,persistentMetaData,releaseDate,' \
             'audioType,unknownSize'
 
+    VOLUME_BAR_LEN = 20
+
     def __init__(self, hostname):
         self.hostname = 'http://' + hostname
+        vol, self.max_vol = self.get_volume()
 
     def get_data(self, path):
         params = { 'path': path, 'roles': self.ROLES }
@@ -140,17 +143,17 @@ class Mondo:
     def print_volume(self):
         vol, max = self.get_volume()
         if (vol != None):
-            print("Current volume: {}/{}".format(vol, max))
+            filledLength = int(self.VOLUME_BAR_LEN * vol // max)
+            bar = '█' * filledLength + '-' * (self.VOLUME_BAR_LEN - filledLength)
+            print(f'Volume: |{bar}| {vol}/{max}', end = '\n')
         else:
             print("Error when getting volume")
 
     def set_volume(self, val):
-        vol, max = self.get_volume()
-        if (vol == None):
-            print("Error when setting volume")
-            return
-        if (val > max):
-            val = max
+        if (val > self.max_vol):
+            val = self.max_vol
+        if (val < 0):
+            val = 0
         value = { 'type': 'i32_', 'i32_': val }
         self.set_data('player:volume', role='value', value=json.dumps(value))
 
@@ -188,7 +191,7 @@ class Mondo:
                 }
         resp = self.set_data('player:player/control', value=json.dumps(params))
         if (resp.status_code != 200):
-            print("Error while setting preset #{}: {}", index, name)
+            print("Error while setting preset #{}: {}".format(index, name))
 
 
 def main(argv):
@@ -198,6 +201,8 @@ def main(argv):
     parser.add_argument('-l', '--list', help='List presets', action='store_true')
     parser.add_argument('-s', '--stop', help='Stop playing', action='store_true')
     parser.add_argument('-v', '--volume', help='Get or set volume level', nargs='?', const=-1, default=None, type=int)
+    parser.add_argument('-d', '--vol-down', help='Lower volume', action='store_true')
+    parser.add_argument('-u', '--vol-up', help='Raise volume', action='store_true')
     args = parser.parse_args(argv)
 
     mondo = Mondo(args.address)
@@ -211,9 +216,18 @@ def main(argv):
     else:
         mondo.print_current()
 
-    if (args.volume != None):
-        if (args.volume >= 0):
-            mondo.set_volume(args.volume)
+    if (args.volume != None or args.vol_down or args.vol_up):
+        if (args.vol_down or args.vol_up):
+            vol, max = mondo.get_volume()
+            if (args.vol_down):
+                target = vol - 2
+            else:
+                target = vol + 2
+        else:
+            target = args.volume
+
+        if (target >= 0):
+            mondo.set_volume(target)
         mondo.print_volume()
 
 if __name__ == "__main__":

@@ -7,9 +7,11 @@ Convenience aliases:
 ```shell
 export GD_HOSTNAME=<hostname>
 export GD_CLI=<path_to_gd-cli>/gd-cli.py
-alias gds="${GD_CLI} -a ${GD_HOSTNAME} -s"
-alias gdl="${GD_CLI} -a ${GD_HOSTNAME} -l"
-alias gdp="${GD_CLI} -a ${GD_HOSTNAME} -p"
-alias gdv="${GD_CLI} -a ${GD_HOSTNAME} -v"
-alias gd="${GD_CLI} -a ${GD_HOSTNAME}"
+alias gdis="${GD_CLI} -a ${GD_HOSTNAME} -s"
+alias gdil="${GD_CLI} -a ${GD_HOSTNAME} -l"
+alias gdip="${GD_CLI} -a ${GD_HOSTNAME} -p"
+alias gdiv="${GD_CLI} -a ${GD_HOSTNAME} -v"
+alias gdivu="${GD_CLI} -a ${GD_HOSTNAME} -u"
+alias gdivd="${GD_CLI} -a ${GD_HOSTNAME} -d"
+alias gdi="${GD_CLI} -a ${GD_HOSTNAME}"
 ```
